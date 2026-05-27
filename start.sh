@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
-# Single process. Streamlit imports backend.rag.answer() directly — no HTTP hop.
-exec streamlit run frontend/app.py \
-  --server.port=${PORT:-8501} \
-  --server.address=0.0.0.0 \
-  --server.headless=true \
-  --server.enableCORS=false \
-  --server.enableXsrfProtection=false \
-  --browser.gatherUsageStats=false
+# Railway injects $PORT. Fail loudly if it's missing or empty so the logs
+# explain why instead of silently binding 8501 (which Railway can't reach).
+if [[ -z "${PORT:-}" ]]; then
+  echo "FATAL: \$PORT is not set. Railway must inject it." >&2
+  exit 1
+fi
+
+echo "Starting Streamlit on 0.0.0.0:${PORT}"
+exec python -m streamlit run frontend/app.py --server.port="${PORT}"

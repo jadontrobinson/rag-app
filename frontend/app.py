@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+# Streamlit puts /app/frontend on sys.path, not /app. Add the project root
+# so `backend` is importable when this script runs from anywhere.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import streamlit as st
 
 from backend.rag import answer
