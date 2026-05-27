@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+streamlit
+groq
+voyageai
+supabase
+python-dotenv
+pypdf
+requests
