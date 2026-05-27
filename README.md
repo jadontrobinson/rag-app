@@ -50,23 +50,17 @@ python ingest.py path/to/folder/
 
 ### 5. Run
 
-In one terminal (backend):
-
-```bash
-uvicorn backend.main:app --reload
-```
-
-In another terminal (frontend):
-
 ```bash
 streamlit run frontend/app.py
 ```
 
 Open http://localhost:8501.
 
+The Streamlit app imports `backend.rag.answer()` directly — no separate API process needed. If you want the FastAPI endpoint (for other clients), run it separately: `uvicorn backend.main:app --reload`.
+
 ## Deploy to Railway
 
-One container, two processes: FastAPI on internal `127.0.0.1:8000`, Streamlit on Railway's `$PORT` (public).
+Single process: Streamlit on Railway's `$PORT` calling the RAG logic in-process. No FastAPI / uvicorn at runtime.
 
 1. Push this repo to GitHub.
 2. Create a Railway project → **Deploy from GitHub repo** → pick this repo.
@@ -87,7 +81,7 @@ Or use the Railway CLI to run ingestion against the deployed env:
 railway run python ingest.py path/to/docs/
 ```
 
-The frontend defaults to `http://localhost:8000` for the backend, which works inside the container. To split frontend and backend into separate Railway services later, set `RAG_API_URL` on the frontend service to the backend service's URL.
+To split into separate services later (e.g., expose FastAPI publicly), deploy `backend/main.py` as its own Railway service with `uvicorn backend.main:app --host 0.0.0.0 --port $PORT` and have Streamlit call it over HTTP.
 
 ## Notes
 
